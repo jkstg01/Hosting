@@ -31,7 +31,7 @@ namespace Microsoft.AspNetCore.Server.Testing
 
             if (DeploymentParameters.PublishApplicationBeforeDeployment)
             {
-                DnuPublish();
+                DotnetPublish();
             }
 
             var uri = TestUriHelper.BuildTestUri(DeploymentParameters.ApplicationBaseUriHint);
@@ -49,23 +49,17 @@ namespace Microsoft.AspNetCore.Server.Testing
 
         private CancellationToken StartSelfHost(Uri uri)
         {
-            var commandName = DeploymentParameters.Command;
-            if (string.IsNullOrEmpty(commandName))
-            {
-                commandName = "run";
-            }
+            var dotnetArgs = $"run"
+                + $" -p \"{DeploymentParameters.ApplicationPath}\" {DotnetArgumentSeparator}"
+                + $" --server.urls {uri} "
+                + $" --server {(DeploymentParameters.ServerType == ServerType.WebListener ? "Microsoft.AspNetCore.Server.WebListener" : "Microsoft.AspNetCore.Server.Kestrel")}";
 
-            var dnxPath = Path.Combine(TargetRuntimeBinPath, DnxCommandName);
-            var dnxArgs = $"-p \"{DeploymentParameters.ApplicationPath}\" {commandName} " +
-                          $"--server.urls {uri} " +
-                          $"--server {(DeploymentParameters.ServerType == ServerType.WebListener ? "Microsoft.AspNetCore.Server.WebListener" : "Microsoft.AspNetCore.Server.Kestrel")}";
-
-            Logger.LogInformation($"Executing {dnxPath} {dnxArgs}");
+            Logger.LogInformation($"Executing {DotnetCommandName} {dotnetArgs}");
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = dnxPath,
-                Arguments = dnxArgs,
+                FileName = DotnetCommandName,
+                Arguments = dotnetArgs,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,

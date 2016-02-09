@@ -26,7 +26,6 @@ namespace Microsoft.AspNetCore.Server.Testing
         {
             // Start timer
             StartTimer();
-
             PickRuntime();
 
             if (DeploymentParameters.PublishApplicationBeforeDeployment)

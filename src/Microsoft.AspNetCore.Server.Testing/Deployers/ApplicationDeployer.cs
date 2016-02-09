@@ -41,7 +41,7 @@ namespace Microsoft.AspNetCore.Server.Testing
 
         protected void PickRuntime()
         {
-            TargetFrameworkName = DeploymentParameters.RuntimeFlavor == RuntimeFlavor.Clr ? "net451" : "dnxcore50";
+            TargetFrameworkName = DeploymentParameters.RuntimeFlavor == RuntimeFlavor.Clr ? "dnx451" : "dnxcore50";
 
             Logger.LogInformation($"Pick target framework {TargetFrameworkName}");
         }
@@ -76,14 +76,15 @@ namespace Microsoft.AspNetCore.Server.Testing
 
             if (hostProcess.ExitCode != 0)
             {
-                throw new Exception(string.Format("dnu publish exited with exit code : {0}", hostProcess.ExitCode));
+                throw new Exception($"{DotnetCommandName} publish exited with exit code : {hostProcess.ExitCode}");
             }
 
             DeploymentParameters.ApplicationPath =
                 (DeploymentParameters.ServerType == ServerType.IISExpress ||
                  DeploymentParameters.ServerType == ServerType.IIS) ?
                 Path.Combine(DeploymentParameters.PublishedApplicationRootPath, "wwwroot") :
-                Path.Combine(DeploymentParameters.PublishedApplicationRootPath, "approot", "src", new DirectoryInfo(DeploymentParameters.ApplicationPath).Name);
+                Path.Combine(DeploymentParameters.PublishedApplicationRootPath, "wwwroot");
+                //Path.Combine(DeploymentParameters.PublishedApplicationRootPath, "approot", "src", new DirectoryInfo(DeploymentParameters.ApplicationPath).Name);
 
             Logger.LogInformation($"{DotnetCommandName} publish finished with exit code : {hostProcess.ExitCode}");
         }

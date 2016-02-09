@@ -48,17 +48,29 @@ namespace Microsoft.AspNetCore.Server.Testing
 
         private CancellationToken StartSelfHost(Uri uri)
         {
-            var dotnetArgs = $"run"
-                + $" -p \"{DeploymentParameters.ApplicationPath}\" {DotnetArgumentSeparator}"
-                + $" --server.urls {uri} "
-                + $" --server {(DeploymentParameters.ServerType == ServerType.WebListener ? "Microsoft.AspNetCore.Server.WebListener" : "Microsoft.AspNetCore.Server.Kestrel")}";
+            string executableArgs;
+            string executableName;
+            if (!DeploymentParameters.PublishApplicationBeforeDeployment)
+            {
+                executableName = DotnetCommandName;
+                executableArgs = $"run"
+                + $" -p \"{DeploymentParameters.ApplicationPath}\" {DotnetArgumentSeparator}";
+            }
+            else
+            {
+                executableName = DeploymentParameters.PublishedApplicationRootPath + @"\MusicStore.exe";
+                executableArgs = "";
+            }
 
-            Logger.LogInformation($"Executing {DotnetCommandName} {dotnetArgs}");
+            executableArgs += $" --server.urls {uri} "
+            + $" --server {(DeploymentParameters.ServerType == ServerType.WebListener ? "Microsoft.AspNetCore.Server.WebListener" : "Microsoft.AspNetCore.Server.Kestrel")}";
+
+            Logger.LogInformation($"Executing {DotnetCommandName} {executableArgs}");
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = DotnetCommandName,
-                Arguments = dotnetArgs,
+                FileName = executableName,
+                Arguments = executableArgs,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
